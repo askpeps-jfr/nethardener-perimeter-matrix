@@ -1,516 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NetHardener: Perimeter Triage Matrix</title>
-  <style>
-    :root {
-      --bg-dark: #0a0d14;
-      --panel-bg: #111827;
-      --card-bg: #161f30;
-      --border-color: #1f293d;
-      --border-accent: #374151;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --text-dim: #6b7280;
-      --emerald: #10b981;
-      --emerald-glow: rgba(16, 185, 129, 0.25);
-      --red: #ef4444;
-      --red-glow: rgba(239, 68, 68, 0.25);
-      --amber: #f59e0b;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 2.5rem 1.5rem;
-    }
-
-    .app-shell {
-      width: 100%;
-      max-width: 1180px;
-      display: flex;
-      flex-direction: column;
-      gap: 1.75rem;
-    }
-
-    header h1 {
-      font-size: 1.85rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      color: #ffffff;
-      letter-spacing: -0.02em;
-    }
-
-    header h1 span.icon {
-      color: #f59e0b;
-    }
-
-    header p {
-      color: var(--text-muted);
-      margin-top: 0.35rem;
-      font-size: 0.95rem;
-    }
-
-    .topology-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-    }
-
-    @media (max-width: 900px) {
-      .topology-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 550px) {
-      .topology-grid { grid-template-columns: 1fr; }
-    }
-
-    .node-card {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1.25rem 1rem;
-      position: relative;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 140px;
-    }
-
-    .node-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .node-desc {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      line-height: 1.35;
-      margin: 0.5rem 0 0.75rem 0;
-    }
-
-    .node-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      padding: 0.25rem 0.6rem;
-      border-radius: 4px;
-      width: fit-content;
-      transition: all 0.3s ease;
-    }
-
-    .badge-red {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--red);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .badge-green {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--emerald);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .node-card.compromised {
-      border-color: rgba(239, 68, 68, 0.5);
-      box-shadow: 0 0 16px var(--red-glow);
-    }
-
-    .node-card.secure {
-      border-color: rgba(16, 185, 129, 0.5);
-      box-shadow: 0 0 16px var(--emerald-glow);
-    }
-
-    .main-workspace {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    @media (max-width: 850px) {
-      .main-workspace { grid-template-columns: 1fr; }
-    }
-
-    .panel {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .panel-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 1.25rem;
-    }
-
-    .controls-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .control-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .control-row:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .control-text h4 {
-      font-size: 0.98rem;
-      font-weight: 600;
-      color: #ffffff;
-      margin-bottom: 0.2rem;
-    }
-
-    .control-text p {
-      font-size: 0.8rem;
-      color: var(--text-dim);
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 48px;
-      height: 26px;
-      flex-shrink: 0;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #2b3548;
-      transition: 0.3s;
-      border-radius: 34px;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 20px;
-      width: 20px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.3s;
-      border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    }
-
-    input:checked + .slider {
-      background-color: var(--emerald);
-      box-shadow: 0 0 10px var(--emerald-glow);
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(22px);
-    }
-
-    .terminal-panel {
-      background: #090d16;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .terminal-body {
-      padding: 1.25rem;
-      flex-grow: 1;
-      height: 380px;
-      overflow-y: auto;
-      font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .log-line {
-      display: block;
-      word-break: break-all;
-    }
-
-    .log-critical { color: var(--red); }
-    .log-success { color: var(--emerald); }
-    .log-warning { color: var(--amber); }
-    .log-info { color: #60a5fa; }
-
-    footer.status-bar {
-      display: grid;
-      grid-template-columns: 1fr 1.5fr 1fr;
-      padding: 1rem 1.25rem;
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      align-items: center;
-    }
-
-    @media (max-width: 768px) {
-      footer.status-bar { grid-template-columns: 1fr; gap: 0.5rem; text-align: center; }
-    }
-
-    .status-bar .center-col {
-      text-align: center;
-      color: var(--text-muted);
-    }
-
-    .status-bar .right-col {
-      text-align: right;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetHardener: Perimeter Triage Matrix</title>
+    <link rel="stylesheet" href="NetHardener_App.css">
 </head>
 <body>
 
-  <div class="app-shell">
-    <header>
-      <h1><span class="icon">⚡</span> NetHardener: Perimeter Triage Matrix</h1>
-      <p>Interactive Network Topology Simulation: Activate infrastructure controls to mitigate live threat streams.</p>
-    </header>
-
-    <div class="topology-grid">
-      <div class="node-card compromised" id="cardWan">
-        <div>
-          <div class="node-header">🌐 Untrusted WAN</div>
-          <div class="node-desc">Public ingress pipe generating high-volume TCP SYN and ICMP probes.</div>
-        </div>
-        <span class="node-badge badge-red" id="badgeWan">Attacker Node (DoS)</span>
-      </div>
-
-      <div class="node-card" id="cardFw">
-        <div>
-          <div class="node-header">🛡️ Next-Gen FW</div>
-          <div class="node-desc">Stateful perimeter boundary handling packet filtering & translation.</div>
-        </div>
-        <span class="node-badge badge-red" id="badgeFw">Rules Static</span>
-      </div>
-
-      <div class="node-card" id="cardSwitch">
-        <div>
-          <div class="node-header">🎛️ Core Switch</div>
-          <div class="node-desc">VLAN segmenter routing traffic across isolated virtual subnets.</div>
-        </div>
-        <span class="node-badge badge-red" id="badgeSwitch">VLAN 10 Trunk</span>
-      </div>
-
-      <div class="node-card compromised" id="cardDb">
-        <div>
-          <div class="node-header">🗄️ Target Database</div>
-          <div class="node-desc">Critical internal database service bound to TCP 3306.</div>
-        </div>
-        <span class="node-badge badge-red" id="badgeDb">OS Standard</span>
-      </div>
+<div class="matrix-container">
+    <div class="header-block">
+        <h1>⚡ NetHardener: Perimeter Triage Matrix</h1>
+        <p>Interactive Network Topology Simulation: Activate infrastructure controls to mitigate live threat streams.</p>
     </div>
 
-    <div class="main-workspace">
-      <div class="panel">
-        <div class="panel-title">Hardening Matrix Controls</div>
-        <div class="controls-list">
-          <div class="control-row">
-            <div class="control-text">
-              <h4>Firewall ACL Rule</h4>
-              <p>Network Tactics & Defense</p>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="chkAcl" onchange="handleStateChange()">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="control-row">
-            <div class="control-text">
-              <h4>Rate-Limiting (DoS Shield)</h4>
-              <p>Secure Against DoS Attacks</p>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="chkRate" onchange="handleStateChange()">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="control-row">
-            <div class="control-text">
-              <h4>Network Layer Isolation</h4>
-              <p>Network Hardening / Segmentation</p>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="chkIsolate" onchange="handleStateChange()">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="control-row">
-            <div class="control-text">
-              <h4>Sysctl Kernel Hardening</h4>
-              <p>OS System Hardening</p>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="chkSysctl" onchange="handleStateChange()">
-              <span class="slider"></span>
-            </label>
-          </div>
+    <div class="topology-display" role="region" aria-label="Network topology">
+        <div id="node-untrusted" class="node under-attack">
+            🌐 Untrusted Wan
+            <div class="node-subtitle">Attacker Node (DoS)</div>
         </div>
-      </div>
+        
+        <div id="node-fw" class="node">
+            🛡️ Next-Gen FW
+            <div id="subtitle-fw" class="node-subtitle">Rules Static</div>
+        </div>
 
-      <div class="terminal-panel">
-        <div class="panel-title" style="padding: 1.25rem 1.25rem 0 1.25rem; margin-bottom: 0.5rem;">Live Perimeter Network Logs</div>
-        <div class="terminal-body" id="terminalLog"></div>
-      </div>
+        <div id="node-switch" class="node">
+            🗄️ Core Switch
+            <div id="subtitle-switch" class="node-subtitle">VLAN 10 Trunk</div>
+        </div>
+
+        <div id="node-srv" class="node under-attack">
+            🖥️ Target Database
+            <div id="subtitle-srv" class="node-subtitle">OS Standard</div>
+        </div>
+        
+        <div id="traffic-wire" class="traffic-line" style="background-color: var(--alert-color);"></div>
     </div>
 
-    <footer class="status-bar">
-      <div>Course 3 Capstone Pipeline</div>
-      <div class="center-col">Simulated Attack Vector: TCP SYN Flood / ICMP Drop</div>
-      <div class="right-col">Engine: JFRsec Security Framework Architecture</div>
-    </footer>
-  </div>
+    <div class="main-grid">
+        <div>
+            <h2>Hardening Matrix Controls</h2>
+            
+            <div class="control-toggle-card">
+                <div class="control-label-box">
+                    <h3>Firewall ACL Rule</h3>
+                    <p>Network Tactics & Defense</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-fw" onchange="processNetworkTelemetry()">
+                    <span class="slider"></span>
+                </label>
+            </div>
 
-  <script>
-    const term = document.getElementById("terminalLog");
-    let pollingInterval = null;
+            <div class="control-toggle-card">
+                <div class="control-label-box">
+                    <h3>Rate-Limiting (DoS Shield)</h3>
+                    <p>Secure Against DoS Attacks</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-rate" onchange="processNetworkTelemetry()">
+                    <span class="slider"></span>
+                </label>
+            </div>
 
-    function getTimeStamp() {
-      const now = new Date();
-      return now.toLocaleTimeString('en-US', { hour12: true });
+            <div class="control-toggle-card">
+                <div class="control-label-box">
+                    <h3>Network Layer Isolation</h3>
+                    <p>Network Hardening / Segmentation</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-seg" onchange="processNetworkTelemetry()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="control-toggle-card">
+                <div class="control-label-box">
+                    <h3>Sysctl Kernel Hardening</h3>
+                    <p>OS System Hardening</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-os" onchange="processNetworkTelemetry()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+        </div>
+
+        <div>
+            <h2>Live Perimeter Network Logs</h2>
+            <div id="console-output" class="console-box" role="log" aria-live="polite">Initializing monitoring system telemetry matrix...</div>
+        </div>
+    </div>
+
+    <div class="meta-footer">
+        <span>Course 3 Capstone Pipeline</span>
+        <span>Simulated Attack Vector: TCP SYN Flood / ICMP Drop</span>
+        <span>Engine: JFRsec Security Framework Architecture</span>
+    </div>
+</div>
+
+<script>
+    let logInterval = null;
+
+    function appendLog(text, className = '') {
+        const consoleBox = document.getElementById('console-output');
+        const span = document.createElement('span');
+        span.className = className;
+        span.innerHTML = `[${new Date().toLocaleTimeString()}] ${text}\n`;
+        consoleBox.appendChild(span);
+        consoleBox.scrollTop = consoleBox.scrollHeight;
     }
 
-    function appendLog(text, type = "info") {
-      const line = document.createElement("div");
-      line.className = `log-line log-${type}`;
-      line.innerText = `[${getTimeStamp()}] ${text}`;
-      term.prepend(line);
+    function processNetworkTelemetry() {
+        clearInterval(logInterval);
+        
+        const fw = document.getElementById('toggle-fw').checked;
+        const rate = document.getElementById('toggle-rate').checked;
+        const seg = document.getElementById('toggle-seg').checked;
+        const os = document.getElementById('toggle-os').checked;
 
-      while (term.children.length > 40) {
-        term.removeChild(term.lastChild);
-      }
-    }
+        const nodeFw = document.getElementById('node-fw');
+        const nodeSwitch = document.getElementById('node-switch');
+        const nodeSrv = document.getElementById('node-srv');
+        const wire = document.getElementById('traffic-wire');
 
-    function startTrafficDaemon() {
-      if (pollingInterval) clearInterval(pollingInterval);
-      pollingInterval = setInterval(() => {
-        const acl = document.getElementById("chkAcl").checked;
-        const rate = document.getElementById("chkRate").checked;
-        const isolate = document.getElementById("chkIsolate").checked;
-        const sysctl = document.getElementById("chkSysctl").checked;
+        // Update Topology State Colors
+        nodeFw.className = fw ? "node active-defense" : "node";
+        document.getElementById('subtitle-fw').innerText = fw ? "ACL Drop Active" : "Rules Static";
 
-        if (acl && rate && isolate && sysctl) {
-          appendLog("PERIMETER MONITOR: Status 200 OK - Link saturated baseline stable.", "success");
-        } else if (!acl) {
-          appendLog("CRITICAL ERROR: High volume ingress traffic overflow hitting DB port 3306.", "critical");
+        nodeSwitch.className = seg ? "node active-defense" : "node";
+        document.getElementById('subtitle-switch').innerText = seg ? "Isolated VLAN" : "VLAN 10 Trunk";
+
+        nodeSrv.className = os ? "node active-defense" : "node under-attack";
+        document.getElementById('subtitle-srv').innerText = os ? "Kernel Hardened" : "OS Standard";
+
+        // --- FIXED: Style properties converted to camelCase (backgroundColor) ---
+        if (fw && rate && seg && os) {
+            wire.style.backgroundColor = 'var(--success-color)';
+            nodeSrv.className = "node active-defense";
+            appendLog("SUCCESS: Network grid fully hardened. Perimeter threat stream neutralized entirely.", "success-stream");
+            logInterval = setInterval(() => appendLog("PERIMETER MONITOR: Status 200 OK - Link saturated baseline stable.", "success-stream"), 3000);
+        } else if (fw && rate) {
+            wire.style.backgroundColor = 'var(--warning-color)';
+            appendLog("TRIAGE ALERT: Perimeter firewall dropping invalid packets, but underlying internal segments lack isolation rules.", "warn-stream");
+            logInterval = setInterval(() => appendLog("TRAFFIC LOGGER: Inbound SYN Flood scaled down via Rate-limiting threshold.", "warn-stream"), 3000);
+        } else {
+            wire.style.backgroundColor = 'var(--alert-color)';
+            nodeSrv.className = "node under-attack";
+            appendLog("INTRUSION WARNING: Live TCP SYN Flood attack streaming through untrusted WAN layer to Target Database Server!", "alert-stream");
+            logInterval = setInterval(() => appendLog("CRITICAL ERROR: High volume ingress traffic overflow hitting DB port 3306.", "alert-stream"), 2500);
         }
-      }, 3500);
     }
 
-    function handleStateChange() {
-      const acl = document.getElementById("chkAcl").checked;
-      const rate = document.getElementById("chkRate").checked;
-      const isolate = document.getElementById("chkIsolate").checked;
-      const sysctl = document.getElementById("chkSysctl").checked;
+    // Fire initial stream on load
+    processNetworkTelemetry();
+</script>
 
-      const cardFw = document.getElementById("cardFw");
-      const badgeFw = document.getElementById("badgeFw");
-      const cardSwitch = document.getElementById("cardSwitch");
-      const badgeSwitch = document.getElementById("badgeSwitch");
-      const cardDb = document.getElementById("cardDb");
-      const badgeDb = document.getElementById("badgeDb");
-
-      if (acl) {
-        cardFw.className = "node-card secure";
-        badgeFw.className = "node-badge badge-green";
-        badgeFw.innerText = "ACL Drop Active";
-        appendLog("TRIAGE ALERT: Perimeter firewall dropping invalid packets, but underlying internal segments lack isolation rules.", "warning");
-      } else {
-        cardFw.className = "node-card";
-        badgeFw.className = "node-badge badge-red";
-        badgeFw.innerText = "Rules Static";
-        appendLog("INTRUSION WARNING: Live TCP SYN Flood attack streaming through untrusted WAN layer to Target Database Server!", "critical");
-      }
-
-      if (rate) {
-        appendLog("TRAFFIC LOGGER: Inbound SYN Flood scaled down via Rate-limiting threshold.", "info");
-      }
-
-      if (isolate) {
-        cardSwitch.className = "node-card secure";
-        badgeSwitch.className = "node-badge badge-green";
-        badgeSwitch.innerText = "Isolated VLAN";
-        appendLog("NETWORK HARDENING: Subnet isolated -> Lateral movement prevented.", "success");
-      } else {
-        cardSwitch.className = "node-card";
-        badgeSwitch.className = "node-badge badge-red";
-        badgeSwitch.innerText = "VLAN 10 Trunk";
-      }
-
-      if (sysctl) {
-        appendLog("KERNEL HARDENING: net.ipv4.tcp_syncookies = 1 committed to memory.", "info");
-      }
-
-      if (acl && rate && isolate && sysctl) {
-        cardDb.className = "node-card secure";
-        badgeDb.className = "node-badge badge-green";
-        badgeDb.innerText = "Kernel Hardened";
-        appendLog("SUCCESS: Network grid fully hardened. Perimeter threat stream neutralized entirely.", "success");
-      } else {
-        cardDb.className = "node-card compromised";
-        badgeDb.className = "node-badge badge-red";
-        badgeDb.innerText = "OS Standard";
-      }
-    }
-
-    window.onload = () => {
-      appendLog("Initializing perimeter telemetry matrix...", "info");
-      appendLog("INTRUSION WARNING: Live TCP SYN Flood attack streaming from untrusted WAN layer to Target Database Server!", "critical");
-      appendLog("CRITICAL ERROR: High volume ingress traffic overflow hitting DB port 3306.", "critical");
-      startTrafficDaemon();
-    };
-  </script>
 </body>
 </html>
