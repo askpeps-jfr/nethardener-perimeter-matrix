@@ -42,3 +42,10 @@ net.ipv4.conf.default.rp_filter = 1
 net.ipv4.icmp_ignore_bogus_error_responses = 1
 
 ```
+
+## 4. Interactive Defense Matrix
+
+This repository includes **NetHardener**, a visual sandbox for modeling protocol interactions, subnet isolation, and real-time defensive rule triggers.
+
+* **Live Interactive App:** [Launch NetHardener Sandbox](https://askpeps-jfr.github.io/nethardener-perimeter-matrix/app/)
+* **Sandbox Source:** `app/index.html`
