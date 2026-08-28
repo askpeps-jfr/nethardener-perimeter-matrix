@@ -17,146 +17,169 @@
             --terminal-bg: #010409;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 35px 20px;
             display: flex;
             justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
         }
 
         .matrix-container {
             width: 100%;
-            max-width: 950px;
+            max-width: 1180px;
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 24px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 32px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
         .header-block {
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            padding-bottom: 18px;
         }
 
         .header-block h1 {
-            font-size: 24px;
+            font-size: 28px;
             color: #f0f6fc;
-            margin: 0 0 5px 0;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .header-block p {
             margin: 0;
-            font-size: 14px;
+            font-size: 15px;
             color: #8b949e;
         }
 
         .topology-display {
             background-color: var(--terminal-bg);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
+            border-radius: 8px;
+            padding: 28px 40px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
             align-items: center;
             position: relative;
-            margin-bottom: 25px;
             overflow: hidden;
         }
 
         .node {
             background-color: var(--panel-bg);
             border: 2px solid var(--border-color);
-            border-radius: 6px;
-            padding: 12px;
+            border-radius: 8px;
+            padding: 18px 12px;
             text-align: center;
-            width: 130px;
             z-index: 2;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
         .node.active-defense {
             border-color: var(--success-color);
-            box-shadow: 0 0 10px rgba(46, 164, 79, 0.4);
+            box-shadow: 0 0 14px rgba(46, 164, 79, 0.45);
         }
 
         .node.under-attack {
             border-color: var(--alert-color);
-            box-shadow: 0 0 10px rgba(248, 81, 73, 0.4);
+            box-shadow: 0 0 14px rgba(248, 81, 73, 0.45);
         }
 
         .node-subtitle {
-            font-size: 10px;
+            font-size: 11px;
             color: #8b949e;
             font-weight: normal;
-            margin-top: 4px;
+            margin-top: 6px;
+            letter-spacing: 0.02em;
         }
 
         .traffic-line {
             position: absolute;
-            height: 2px;
-            background-color: var(--success-color);
+            height: 3px;
+            background-color: var(--alert-color);
             top: 50%;
-            left: 150px;
-            right: 150px;
+            left: 10%;
+            right: 10%;
             z-index: 1;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.4s ease, box-shadow 0.4s ease;
+            box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);
         }
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 20px;
+            grid-template-columns: 1fr 1.15fr;
+            gap: 28px;
         }
 
-        @media (max-width: 768px) {
-            .main-grid {
-                grid-template-columns: 1fr;
+        @media (max-width: 900px) {
+            .topology-display {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 20px;
             }
+            .traffic-line { display: none; }
+            .main-grid { grid-template-columns: 1fr; }
         }
 
-        .controls-panel h2, .console-panel h2, .main-grid h2 {
-            font-size: 16px;
+        .main-grid h2 {
+            font-size: 18px;
             color: #f0f6fc;
-            margin: 0 0 15px 0;
-            border-left: 3px solid var(--accent-color);
-            padding-left: 8px;
+            margin: 0 0 18px 0;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
         }
 
         .control-toggle-card {
             background-color: #21262d;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 12px 15px;
-            margin-bottom: 12px;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: border-color 0.2s ease;
+        }
+
+        .control-toggle-card:hover {
+            border-color: #484f58;
         }
 
         .control-label-box h3 {
-            font-size: 14px;
+            font-size: 15px;
             margin: 0 0 4px 0;
             color: #f0f6fc;
+            font-weight: 600;
         }
 
         .control-label-box p {
             margin: 0;
-            font-size: 12px;
+            font-size: 13px;
             color: #8b949e;
         }
 
         .toggle-switch {
             position: relative;
             display: inline-block;
-            width: 46px;
-            height: 22px;
+            width: 50px;
+            height: 26px;
+            flex-shrink: 0;
         }
 
         .toggle-switch input {
@@ -171,22 +194,23 @@
             top: 0; left: 0; right: 0; bottom: 0;
             background-color: var(--bg-color);
             border: 1px solid var(--border-color);
-            transition: .3s;
-            border-radius: 22px;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 26px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 14px; width: 14px;
+            height: 18px; width: 18px;
             left: 3px; bottom: 3px;
             background-color: #8b949e;
-            transition: .3s;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 50%;
         }
 
         input:checked + .slider {
             background-color: var(--success-color);
+            box-shadow: 0 0 10px rgba(46, 164, 79, 0.4);
         }
 
         input:checked + .slider:before {
@@ -197,35 +221,34 @@
         .console-box {
             background-color: var(--terminal-bg);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 15px;
-            font-family: "SFMono-Regular", Consolas, monospace;
-            font-size: 13px;
-            height: 280px;
+            border-radius: 8px;
+            padding: 18px;
+            font-family: "SFMono-Regular", Consolas, "JetBrains Mono", monospace;
+            font-size: 13.5px;
+            height: 380px;
             overflow-y: auto;
             white-space: pre-wrap;
             color: #e6edf3;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        .alert-stream { color: var(--alert-color); }
-        .success-stream { color: var(--success-color); }
-        .warn-stream { color: var(--warning-color); }
+        .alert-stream { color: var(--alert-color); font-weight: 500; }
+        .success-stream { color: var(--success-color); font-weight: 500; }
+        .warn-stream { color: var(--warning-color); font-weight: 500; }
 
         .meta-footer {
-            margin-top: 20px;
             border-top: 1px solid var(--border-color);
-            padding-top: 15px;
+            padding-top: 18px;
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
+            font-size: 13px;
             color: #8b949e;
         }
 
         @media (max-width: 768px) {
             .meta-footer {
                 flex-direction: column;
-                gap: 6px;
+                gap: 8px;
                 text-align: center;
             }
         }
@@ -260,7 +283,7 @@
             <div id="subtitle-srv" class="node-subtitle">OS Standard</div>
         </div>
         
-        <div id="traffic-wire" class="traffic-line" style="background-color: var(--alert-color);"></div>
+        <div id="traffic-wire" class="traffic-line"></div>
     </div>
 
     <div class="main-grid">
@@ -362,15 +385,18 @@
 
         if (fw && rate && seg && os) {
             wire.style.backgroundColor = 'var(--success-color)';
+            wire.style.boxShadow = '0 0 10px rgba(46, 164, 79, 0.6)';
             nodeSrv.className = "node active-defense";
             appendLog("SUCCESS: Network grid fully hardened. Perimeter threat stream neutralized entirely.", "success-stream");
             logInterval = setInterval(() => appendLog("PERIMETER MONITOR: Status 200 OK - Link saturated baseline stable.", "success-stream"), 3000);
         } else if (fw && rate) {
             wire.style.backgroundColor = 'var(--warning-color)';
+            wire.style.boxShadow = '0 0 10px rgba(219, 109, 40, 0.6)';
             appendLog("TRIAGE ALERT: Perimeter firewall dropping invalid packets, but underlying internal segments lack isolation rules.", "warn-stream");
             logInterval = setInterval(() => appendLog("TRAFFIC LOGGER: Inbound SYN Flood scaled down via Rate-limiting threshold.", "warn-stream"), 3000);
         } else {
             wire.style.backgroundColor = 'var(--alert-color)';
+            wire.style.boxShadow = '0 0 10px rgba(248, 81, 73, 0.6)';
             nodeSrv.className = "node under-attack";
             appendLog("INTRUSION WARNING: Live TCP SYN Flood attack streaming through untrusted WAN layer to Target Database Server!", "alert-stream");
             logInterval = setInterval(() => appendLog("CRITICAL ERROR: High volume ingress traffic overflow hitting DB port 3306.", "alert-stream"), 2500);
