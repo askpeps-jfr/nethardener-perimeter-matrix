@@ -50,4 +50,4 @@ This repository includes **NetHardener**, a visual sandbox for modeling protocol
 * **Live Interactive App:** [Launch NetHardener Sandbox](https://askpeps-jfr.github.io/nethardener-perimeter-matrix/app/)
 * **Sandbox Source:** `app/index.html`
 
-Developed as part of the JFRsec Cybersecurity Portfolio Suite (Course 3: Connect and Protect: Network Security).
+*Developed as part of the JFRsec Cybersecurity Portfolio Suite (Course 3: Connect and Protect - Network Security).*
